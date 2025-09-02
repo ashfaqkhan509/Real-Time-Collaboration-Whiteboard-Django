@@ -27,7 +27,7 @@ class UserRegistrationForm(UserCreationForm):
         'class': 'form-control',
         'placeholder': 'Enter your email'
     }))
-    
+
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')
@@ -37,14 +37,14 @@ class UserRegistrationForm(UserCreationForm):
                 'placeholder': 'Choose a username'
             }),
         }
-    
+
     def __init__(self, *args, **kwargs):
         super(UserRegistrationForm, self).__init__(*args, **kwargs)
         self.fields['password1'].widget.attrs['class'] = 'form-control'
         self.fields['password2'].widget.attrs['class'] = 'form-control'
         self.fields['password1'].widget.attrs['placeholder'] = 'Enter password'
         self.fields['password2'].widget.attrs['placeholder'] = 'Confirm password'
-    
+
     def save(self, commit=True):
         user = super(UserRegistrationForm, self).save(commit=False)
         user.email = self.cleaned_data['email']

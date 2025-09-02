@@ -2,13 +2,10 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import (
     Board,
     BoardMembership,
-    DrawingAction,
-    ActiveConnection
 )
 from .forms import BoardForm, UserRegistrationForm, LoginForm
 
@@ -25,17 +22,16 @@ def board_detail(request, board_id):
     if not BoardMembership.objects.filter(board=board, user=request.user).exists():
         messages.error(request, "You do not have access to this board.")
         return redirect('list_boards')
-    
+
     membership = BoardMembership.objects.get(board=board, user=request.user)
 
     can_draw = membership.permission in ["admin", "edit"]
-    
+
     return render(request, 'whiteboard_app/board_detail.html', {
         'board': board,
         'membership': membership,
         'can_draw': can_draw,
     })
-
 
 
 @login_required
@@ -51,7 +47,7 @@ def create_board(request):
             return redirect('board_detail', board_id=board.id)
     else:
         form = BoardForm()
-    
+
     return render(request, 'whiteboard_app/create_board.html', {'form': form})
 
 
@@ -98,7 +94,7 @@ def get_board_state(request, board_id):
     board = get_object_or_404(Board, id=board_id)
     if not BoardMembership.objects.filter(board=board, user=request.user).exists():
         return JsonResponse({'error': 'Access denied'}, status=403)
-    
+
     state = board.get_current_state()
     return JsonResponse({
         'board_id': board.id,

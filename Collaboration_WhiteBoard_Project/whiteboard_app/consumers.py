@@ -2,8 +2,6 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import Board, DrawingAction, BoardMembership, ActiveConnection
-from django.contrib.auth.models import User
-from asgiref.sync import sync_to_async
 
 
 class WhiteboardConsumer(AsyncWebsocketConsumer):
@@ -16,16 +14,16 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
         if self.user is None or not self.user.is_authenticated:
             await self.close(code=4401)
             return
-        
+
         if not await self.has_board_access():
             await self.close(code=4403)
             return
-        
+
         await self.channel_layer.group_add(
             self.board_group_name,
             self.channel_name
         )
-        
+
         await self.accept()
 
         await self.add_active_connection()
@@ -37,7 +35,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
         }))
 
         await self.broadcast_user_joined()
-    
+
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.board_group_name,
@@ -45,7 +43,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
         )
         await self.remove_active_connection()
         await self.broadcast_user_left()
-    
+
     async def receive(self, text_data):
         data = json.loads(text_data)
         message_type = data.get('type')
@@ -56,7 +54,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
             await self.handle_cursor_position(data)
         elif message_type == 'request_users':
             await self.send_active_users()
-    
+
     async def handle_drawing_action(self, data):
         # check if a user has edit permission
         if not await self.has_edit_permission():
@@ -65,7 +63,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
                 'message': 'You do not have permission to draw on this board.'
             }))
             return
-        
+
         # Save the drawing action to the database
         action = await self.save_drawing_action(data)
 
@@ -78,7 +76,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
                 'user': self.user.username
             }
         )
-    
+
     async def handle_cursor_position(self, data):
         # Broadcast cursor position to others (not saved)
         await self.channel_layer.group_send(
@@ -98,7 +96,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
             'action': event['action'],
             'user': event['user']
         }))
-    
+
     async def cursor_position(self, event):
         if event['channel_name'] != self.channel_name:
             await self.send(text_data=json.dumps({
@@ -107,27 +105,27 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
                 'y': event['y'],
                 'user': event['user']
             }))
-    
+
     async def user_joined(self, event):
         await self.send(text_data=json.dumps({
             'type': 'user_joined',
             'user': event['user'],
             'users': event['users']
         }))
-    
+
     async def user_left(self, event):
         await self.send(text_data=json.dumps({
             'type': 'user_left',
             'user': event['user'],
             'users': event['users']
         }))
-    
+
     async def heartbeat(self, event):
         await self.send(text_data=json.dumps({
             'type': 'heartbeat',
             'timestamp': event['timestamp']
         }))
-    
+
     @database_sync_to_async
     def has_board_access(self):
         try:
@@ -135,7 +133,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
             return BoardMembership.objects.filter(board=board, user=self.user).exists()
         except Board.DoesNotExist:
             return False
-    
+
     @database_sync_to_async
     def has_edit_permission(self):
         try:
@@ -144,7 +142,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
             return membership.permission in ['edit', 'admin']
         except (Board.DoesNotExist, BoardMembership.DoesNotExist):
             return False
-    
+
     @database_sync_to_async
     def get_board_state(self):
         try:
@@ -152,7 +150,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
             return board.get_current_state()
         except Board.DoesNotExist:
             return []
-    
+
     @database_sync_to_async
     def save_drawing_action(self, data):
         board = Board.objects.get(id=self.board_id)
@@ -170,7 +168,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
             'action_id': action.action_id,
             'timestamp': str(action.created_at)
         }
-    
+
     @database_sync_to_async
     def add_active_connection(self):
         board = Board.objects.get(id=self.board_id)
@@ -181,7 +179,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
                 "channel_name": self.channel_name
             }
         )
-    
+
     @database_sync_to_async
     def remove_active_connection(self):
         board = Board.objects.get(id=self.board_id)
@@ -190,7 +188,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
             user=self.user,
             channel_name=self.channel_name
         ).delete()
-    
+
     @database_sync_to_async
     def get_active_users(self):
         board = Board.objects.get(id=self.board_id)
@@ -198,7 +196,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
             board=board
         ).select_related('user')
         return [conn.user.username for conn in connections]
-    
+
     async def broadcast_user_joined(self):
         users = await self.get_active_users()
         await self.channel_layer.group_send(
@@ -209,7 +207,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
                 'users': users
             }
         )
-    
+
     async def broadcast_user_left(self):
         users = await self.get_active_users()
         await self.channel_layer.group_send(
@@ -220,7 +218,7 @@ class WhiteboardConsumer(AsyncWebsocketConsumer):
                 'users': users
             }
         )
-    
+
     async def send_active_users(self):
         users = await self.get_active_users()
         await self.send(text_data=json.dumps({

@@ -2,7 +2,6 @@ from celery import shared_task
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from .models import Board
-import json
 from datetime import datetime
 
 
@@ -12,14 +11,14 @@ def send_heartbeat():
     Send heartbeat messages to all connected users on all boards
     """
     channel_layer = get_channel_layer()
-    
+
     # Get all boards
     boards = Board.objects.all()
-    
+
     # Send heartbeat to each board group
     for board in boards:
         board_group_name = f'board_{board.id}'
-        
+
         # Send heartbeat message to the board group
         async_to_sync(channel_layer.group_send)(
             board_group_name,
@@ -35,7 +34,7 @@ def create_board_snapshot():
     """
     Create snapshots for all boards
     """
-    from .models import Board  # avoid circular imports
+    from .models import Board  # noqa: E402
 
     for board in Board.objects.all():
         try:

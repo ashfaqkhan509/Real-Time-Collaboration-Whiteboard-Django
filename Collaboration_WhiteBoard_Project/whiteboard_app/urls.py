@@ -1,5 +1,5 @@
-from django.urls import path, include
-from . import views
+from django.urls import path
+from whiteboard_app import views
 
 
 urlpatterns = [

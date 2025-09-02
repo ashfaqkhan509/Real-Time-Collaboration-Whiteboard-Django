@@ -17,21 +17,44 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Board',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.BigAutoField(
+                    auto_created=True,
+                    primary_key=True,
+                    serialize=False,
+                    verbose_name='ID'
+                )),
                 ('name', models.CharField(max_length=255)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('created_by', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to=settings.AUTH_USER_MODEL
+                )),
             ],
         ),
         migrations.CreateModel(
             name='BoardMembership',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('permission', models.CharField(choices=[('view', 'View Only'), ('edit', 'Edit'), ('admin', 'Admin')], default='view', max_length=10)),
+                ('id', models.BigAutoField(
+                    auto_created=True,
+                    primary_key=True,
+                    serialize=False,
+                    verbose_name='ID'
+                )),
+                ('permission', models.CharField(
+                    choices=[('view', 'View Only'), ('edit', 'Edit'), ('admin', 'Admin')],
+                    default='view',
+                    max_length=10
+                )),
                 ('joined_at', models.DateTimeField(auto_now_add=True)),
-                ('board', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='whiteboard_app.board')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('board', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to='whiteboard_app.board'
+                )),
+                ('user', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to=settings.AUTH_USER_MODEL
+                )),
             ],
             options={
                 'unique_together': {('user', 'board')},
@@ -40,15 +63,28 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='board',
             name='members',
-            field=models.ManyToManyField(related_name='boards', through='whiteboard_app.BoardMembership', to=settings.AUTH_USER_MODEL),
+            field=models.ManyToManyField(
+                related_name='boards',
+                through='whiteboard_app.BoardMembership',
+                to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.CreateModel(
             name='BoardSnapshot',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.BigAutoField(
+                    auto_created=True,
+                    primary_key=True,
+                    serialize=False,
+                    verbose_name='ID'
+                )),
                 ('snapshot_data', models.JSONField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('board', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='snapshots', to='whiteboard_app.board')),
+                ('board', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    related_name='snapshots',
+                    to='whiteboard_app.board'
+                )),
             ],
             options={
                 'ordering': ['-created_at'],
@@ -57,13 +93,34 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DrawingAction',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('action_type', models.CharField(choices=[('draw', 'Draw'), ('shape', 'Shape'), ('text', 'Text'), ('erase', 'Erase'), ('clear', 'Clear')], max_length=10)),
+                ('id', models.BigAutoField(
+                    auto_created=True,
+                    primary_key=True,
+                    serialize=False,
+                    verbose_name='ID'
+                )),
+                ('action_type', models.CharField(
+                    choices=[
+                        ('draw', 'Draw'),
+                        ('shape', 'Shape'),
+                        ('text', 'Text'),
+                        ('erase', 'Erase'),
+                        ('clear', 'Clear')
+                    ],
+                    max_length=10
+                )),
                 ('action_data', models.JSONField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('action_id', models.CharField(max_length=100, unique=True)),
-                ('board', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='drawing_actions', to='whiteboard_app.board')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('board', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    related_name='drawing_actions',
+                    to='whiteboard_app.board'
+                )),
+                ('user', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to=settings.AUTH_USER_MODEL
+                )),
             ],
             options={
                 'ordering': ['created_at'],
@@ -72,12 +129,24 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ActiveConnection',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.BigAutoField(
+                    auto_created=True,
+                    primary_key=True,
+                    serialize=False,
+                    verbose_name='ID'
+                )),
                 ('channel_name', models.CharField(max_length=200)),
                 ('connected_at', models.DateTimeField(auto_now_add=True)),
                 ('last_seen', models.DateTimeField(auto_now=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('board', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='active_connections', to='whiteboard_app.board')),
+                ('user', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to=settings.AUTH_USER_MODEL
+                )),
+                ('board', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    related_name='active_connections',
+                    to='whiteboard_app.board'
+                )),
             ],
             options={
                 'unique_together': {('board', 'user')},

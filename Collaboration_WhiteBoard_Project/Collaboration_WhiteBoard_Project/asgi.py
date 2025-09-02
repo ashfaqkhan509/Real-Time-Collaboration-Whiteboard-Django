@@ -13,13 +13,13 @@ from channels.auth import AuthMiddlewareStack
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Collaboration_WhiteBoard_Project.settings")
 
 # Load Django first
 django_asgi_app = get_asgi_application()
 
-# Import your websocket routing *after* Django is ready
-import whiteboard_app.routing
+import whiteboard_app.routing # noqa: E402
 
 application = ProtocolTypeRouter(
     {

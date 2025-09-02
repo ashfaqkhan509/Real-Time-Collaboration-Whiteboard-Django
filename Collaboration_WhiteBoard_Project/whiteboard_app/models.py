@@ -11,7 +11,7 @@ class Board(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def get_current_state(self):
         actions = self.drawing_actions.all().order_by('created_at')
         state = []
@@ -52,7 +52,7 @@ class DrawingAction(models.Model):
         ('erase', 'Erase'),
         ('clear', 'Clear'),
     ]
-    
+
     board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='drawing_actions')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     action_type = models.CharField(max_length=10, choices=ACTION_TYPES)
@@ -74,7 +74,7 @@ class BoardSnapshot(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-    
+
     def __str__(self):
         return f"Snapshot of {self.board.name} at {self.created_at}"
 
@@ -88,6 +88,6 @@ class ActiveConnection(models.Model):
 
     class Meta:
         unique_together = ['board', 'user']
-    
+
     def __str__(self):
         return f"{self.user.username} connected to {self.board.name}"
