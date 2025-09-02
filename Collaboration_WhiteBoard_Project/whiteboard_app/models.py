@@ -64,7 +64,7 @@ class DrawingAction(models.Model):
         ordering = ['created_at']
 
     def __str__(self):
-        return f"{self.action_type} by {self.user.username} on {self.board.name} at {self.created_at}"
+        return f"{self.action_type} by {self.user.username} on {self.board.name}"
 
 
 class BoardSnapshot(models.Model):

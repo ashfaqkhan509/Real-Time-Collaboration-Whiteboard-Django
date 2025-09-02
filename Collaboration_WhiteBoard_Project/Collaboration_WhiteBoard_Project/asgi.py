@@ -19,7 +19,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Collaboration_WhiteBoard_Projec
 # Load Django first
 django_asgi_app = get_asgi_application()
 
-import whiteboard_app.routing # noqa: E402
+import whiteboard_app.routing  # noqa: E402
 
 application = ProtocolTypeRouter(
     {

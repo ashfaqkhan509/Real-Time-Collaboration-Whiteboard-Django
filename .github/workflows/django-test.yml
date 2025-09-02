@@ -52,4 +52,4 @@ jobs:
       - name: Run Django tests
         run: |
           echo "Running Django tests..."
-          pytest
+          pytest --ds=Collaboration_WhiteBoard_Project.settings
