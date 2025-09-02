@@ -48,10 +48,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install pytest-django
 
       - name: Run Django tests
         env:
-          PYTHONPATH: .
+          PYTHONPATH: ${{ github.workspace }}
+          DJANGO_SETTINGS_MODULE: Collaboration_WhiteBoard_Project.settings
         run: |
           echo "Running Django tests..."
-          pytest --ds=Collaboration_WhiteBoard_Project.settings
+          pytest
